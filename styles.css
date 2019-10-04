@@ -1,17 +1,47 @@
+
 * {
-  margin:0px;
-  padding:0px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
 }
-
-#octocat {
-  display: block;
-  width:384px;
-  margin: 50px auto;
+img {
+    width: 100vw;
+    height: calc((100vw / 16) * 9 );
+    object-fit: cover;
 }
-
-p {
-  display: block;
-  width: 400px;
-  margin: 50px auto;
-  font: 30px Monaco,"Courier New","DejaVu Sans Mono","Bitstream Vera Sans Mono",monospace;
+#content {
+    bottom: 0px;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+}
+#toggle {
+    display: none;
+    position: absolute;
+    bottom: 50px;
+    left: 50px;
+    background: #9d2bd8;
+    background-image: -webkit-linear-gradient(top, #5791a2, #9d2bd8);
+    background-image: -moz-linear-gradient(top, #5791a2, #9d2bd8);
+    background-image: -ms-linear-gradient(top, #5791a2, #9d2bd8);
+    background-image: -o-linear-gradient(top, #5791a2, #9d2bd8);
+    background-image: linear-gradient(to bottom, #5791a2, #9d2bd8);
+    -webkit-border-radius: 100px;
+    -moz-border-radius: 100px;
+    border-radius: 100px;
+    height: 75px;
+    line-height: 75px;
+    color: #FFFFFF;
+    font-family: Open Sans;
+    width: 75px;
+    font-size: 15px;
+    font-weight: 100;
+    padding: 0px;
+    box-shadow: 1px 1px 20px 0px #000000;
+    -webkit-box-shadow: 1px 1px 20px 0px #000000;
+    -moz-box-shadow: 1px 1px 20px 0px #000000;
+    text-shadow: 1px 1px 20px #000000;
+    border: solid #ffe3e3 0px;
+    text-decoration: none;
+    cursor: pointer;
 }
