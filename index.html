@@ -1,18 +1,209 @@
 <!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Pexels Slideshow</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Acme&amp;display=swap">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            img {
+                width: 100vw;
+                height: calc((100vw / 16) * 9 );
+                object-fit: cover;
+            }
+            #content {
+                bottom: 0px;
+                position: absolute;
+                width: 100vw;
+                height: 100vh;
+            }
+            #toggle {
+                display: none;
+                position: absolute;
+                bottom: 50px;
+                left: 50px;
+                background: #9d2bd8;
+                background-image: -webkit-linear-gradient(top, #5791a2, #9d2bd8);
+                background-image: -moz-linear-gradient(top, #5791a2, #9d2bd8);
+                background-image: -ms-linear-gradient(top, #5791a2, #9d2bd8);
+                background-image: -o-linear-gradient(top, #5791a2, #9d2bd8);
+                background-image: linear-gradient(to bottom, #5791a2, #9d2bd8);
+                -webkit-border-radius: 100px;
+                -moz-border-radius: 100px;
+                border-radius: 100px;
+                height: 75px;
+                line-height: 75px;
+                color: #FFFFFF;
+                font-family: Open Sans;
+                width: 75px;
+                font-size: 15px;
+                font-weight: 100;
+                padding: 0px;
+                box-shadow: 1px 1px 20px 0px #000000;
+                -webkit-box-shadow: 1px 1px 20px 0px #000000;
+                -moz-box-shadow: 1px 1px 20px 0px #000000;
+                text-shadow: 1px 1px 20px #000000;
+                border: solid #ffe3e3 0px;
+                text-decoration: none;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="form_div" class="col-12">
+            <div class="col-6 mx-auto my-5">
+                <h1 id="header">Pexels SlideShow.</h1>
+                <p class="text">Fill in what you want to display and set the interval time.</p>
+                <div id="form">
+                    <div class="form-group">
+                    <label for="query">Search term</label>
+                    <input id="query" name="query" placeholder="landscape" value="landscape" type="text" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                    <label for="duration">Duration</label>
+                    <input id="duration" name="duration" placeholder="5" value="5" type="number" min="5" max="59" required aria-describedby="durationHelpBlock" class="form-control">
+                    <span id="durationHelpBlock" class="form-text text-muted">Duration in minutes</span>
+                    </div>
+                    <div class="form-group">
+                    <button id="submit" name="submit" type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="box" class="content">
+            <button id="toggle" class="btn btn-sm btn-dark">Fullscreen</button>
+            <img id="pexel" class="pexel"/>
+        </div>
 
-<html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <title>my-first-website</title>
-  <LINK href="styles.css" rel="stylesheet" type="text/css">
-</head>
+        <script>
 
-<body>
+            var urlAPI = "https://api.pexels.com/v1";
+            var default_key = "563492ad6f91700001000001eb1f4c748fc648e0a5a191ceefb62d85";
+            var page = 1;
+            var total_results = 0;
+            var current_page = 1;
+            var pages = 0;
+            var fullscreen = false;
 
-<img src="https://octodex.github.com/images/daftpunktocat-thomas.gif" id="octocat" alt="octocat-gif" />
+            $("#submit").click(function(){
+                var query = $("#query").val();
+                var duration = Number($("#duration").val());
+                if(duration < 5){
+                    duration = 5
+                }
+                var interval = duration  * 60 * 1000;
+                var per_page = 3600000 / interval;
+                var new_page = per_page * interval;
 
-<!-- Change this code here by copy and pasting your template on line 15 -->
-<p>Welcome to your first GitHub Pages website!</p>
+                $("#form_div").css('display', 'none');
+                $("#pexel").css('display', 'block');
 
-</body>
+                $.ajaxSetup({
+                    headers:{
+                        'Authorization': default_key
+                    }
+                });
+
+                (function pexel() {
+                    $.get(urlAPI + "/search?query=" + query + "&per_page=" + per_page + "&page=" + page, function(data, status) {
+                        if (status == 'success' && data) {
+                        total_results = data.total_results;
+                        current_page = data.page;
+                        pages = Math.floor(total_results / per_page);
+                        var i=0;
+                        console.log(data.photos[i].src.landscape);
+                        $('#pexel').attr('src', data.photos[i].src.landscape);
+                        setInterval(function(){
+                            i++;
+                            console.log(data.photos[i].src.original);
+                            $('#pexel').attr('src', data.photos[i].src.landscape);
+                        }, interval);
+                        }
+
+                    }, 'json');
+                    if(!pages < current_page ){
+                        page++;
+                    }
+                    else {
+                        page = 1;
+                    }
+
+                setTimeout(pexel, new_page);
+                })();
+
+                var timer;
+                $(window).on('mousemove', function(e) {
+                    $("#toggle").show();
+                    clearInterval(timer);
+                    timer = setTimeout(function(){
+                        $("#toggle").hide();
+                    }, 3000);
+                });
+
+                $("#toggle").on('click', function(e) {
+                    var element = 'box';
+                    if(fullscreen){
+                        exitFullScreen(element);
+                        fullscreen = false;
+                        $(this).html('Fullscreen');
+                    } else {
+                        goFullScreen(element);
+                        fullscreen = true;
+                        $(this).html('Exit');
+                    }
+                });
+            });
+
+            function goFullScreen(element){
+                var elem = document.getElementById(element);
+                if(elem.requestFullscreen){
+                    elem.requestFullscreen();
+                } else if(elem.mozRequestFullScreen){
+                    elem.mozRequestFullScreen();
+                } else if(elem.webkitRequestFullscreen){
+                    elem.webkitRequestFullscreen();
+                } else if(elem.msRequestFullscreen){
+                    elem.msRequestFullscreen();
+                }
+            }
+
+            function exitFullScreen(){
+                if(document.exitFullscreen){
+                    document.exitFullscreen();
+                } else if(document.mozCancelFullScreen){
+                    document.mozCancelFullScreen();
+                } else if(document.webkitExitFullscreen){
+                    document.webkitExitFullscreen();
+                } else if(document.msExitFullscreen){
+                    document.msExitFullscreen();
+                }
+            }
+
+            $(document).ready(function(){
+                $('input[type="number"]').on('keyup',function(){
+                    v = parseInt($(this).val());
+                    min = parseInt($(this).attr('min'));
+                    max = parseInt($(this).attr('max'));
+
+                    if (v < min){
+                        $(this).val(min);
+                    } else
+                    if (v > max){
+                        $(this).val(max);
+                    }
+                });
+            });
+
+        </script>
+
+    </body>
 </html>
